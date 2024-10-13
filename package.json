@@ -4,9 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx nx run-many -t build",
+    "prepare": "husky"
   },
   "author": "",
   "license": "ISC",
-  "workspaces":["apps/*","libs/*"]
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "nx": "19.8.3"
+  }
 }
