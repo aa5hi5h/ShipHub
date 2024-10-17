@@ -12,7 +12,7 @@ const Navbar = () => {
 
     return (
         <div className="flex justify-between items-center p-4">
-            < div className="text-4xl font-bold tracking-tight">
+            < div onClick={() => router.push("/")} className="text-4xl font-bold tracking-tight">
                 Inventory
             </div>
             <div className="flex gap-4">

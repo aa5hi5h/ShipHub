@@ -1,0 +1,192 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+model Account {
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String @db.ObjectId
+  providerType       String
+  providerId         String
+  providerAccountId  String
+  refreshToken       String?
+  accessToken        String?
+  accessTokenExpires DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  user               User      @relation(fields: [userId], references: [id])
+
+  @@unique([providerId, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String @db.ObjectId
+  expires      DateTime
+  sessionToken String   @unique
+  accessToken  String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String?   @unique
+  username      String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  manufacture  Manufacturer?
+  distibuter Distributer? 
+  retailer Retailer?
+}
+
+model VerificationRequest {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, token])
+}
+
+
+model Product{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  name String
+  description String
+  image String
+
+  manufacturer Manufacturer @relation(fields: [manufacturerId],references: [id])
+  manufacturerId String @db.ObjectId
+
+
+  Inventory Inventory[]
+  Transaction Transaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Manufacturer{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  name String
+
+  user User @relation(fields: [id],references: [id])
+
+  product Product[]
+
+  Warehouses Warehouse[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Distributer{
+  id String @id @default( auto()) @map("_id") @db.ObjectId
+
+  name String
+
+  user User @relation(fields: [id], references: [id])
+
+  Warehouses Warehouse[]
+
+  createdAt DateTime @default( now())
+  updatedAt DateTime @updatedAt
+}
+
+model Retailer{
+  id String @id @default( auto()) @map("_id") @db.ObjectId
+
+  user User @relation(fields: [id],references: [id])
+
+  name String
+
+  Warehouse Warehouse[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Transaction{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  product Product @relation(fields: [productId],references: [id])
+  productId String @db.ObjectId
+
+   toWarehouseId String @db.ObjectId
+  toWarehouse Warehouse @relation("ToWarehouse", fields: [toWarehouseId], references: [id])
+
+  fromWarehouseId String @db.ObjectId
+  fromWarehouse Warehouse @relation("FromWarehouse", fields: [fromWarehouseId], references: [id])
+
+
+  createdAt DateTime @default( now())
+  updatedAt DateTime @updatedAt
+}
+
+model Warehouse{
+  id String @id @default(auto()) @map("_id") @db.ObjectId 
+
+  location Location @relation(fields: [locationId],references: [id])
+  locationId String @db.ObjectId
+
+  manufacturer Manufacturer? @relation(fields: [manufacturerId],references: [id])
+  manufacturerId String? @db.ObjectId
+
+  distributer Distributer? @relation(fields:[distributerId],references:[id])
+  distributerId String? @db.ObjectId
+
+  retailer Retailer? @relation(fields: [retailerId], references: [id])
+  retailerId String @db.ObjectId
+
+  Inventory Inventory[]
+
+  ins Transaction[] @relation("ToWarehouse")
+  outs Transaction[] @relation("FromWarehouse")
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Location{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  longitude Float
+  latitutde Float 
+  address String
+
+  warehouses Warehouse[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Inventory{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  productId String @db.ObjectId
+  product Product @relation(fields: [productId], references: [id])
+
+  warehouseId String @db.ObjectId
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
