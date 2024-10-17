@@ -13,7 +13,7 @@ export const authOption: NextAuthOptions = {
     session: {
         strategy: "jwt"
     },
-    secret: process.env.NEXTAUTH_URL,
+    secret: process.env.NEXTAUTH_SECRET,
     pages: {
         signIn: "/sign-in"
     },
@@ -66,6 +66,7 @@ export const authOption: NextAuthOptions = {
             if(user){
                 return {
                     ...token,
+                    id: user.id,
                     username: user.username
                 }
             }
@@ -77,6 +78,7 @@ export const authOption: NextAuthOptions = {
                 ...session,
                 user:{
                     ...session.user,
+                    id: token.id ,
                     username: token.username
                 }
             }
