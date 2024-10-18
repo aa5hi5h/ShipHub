@@ -19,6 +19,9 @@ export async function GET(request:Request,{params}:{params :{id:string}}){
         const WareHouse = await prisma.warehouse.findUnique({
             where:{
                 id,
+            },
+            include: {
+                location: true
             }
         })
 
@@ -44,7 +47,7 @@ export async function PATCH(request:Request,{params}:{params:{id:string}}){
 
         const {id} = params
 
-        const {longitude,latitude,address} = await request.json()
+        const {name,longitude,latitude,address,manufacturerId} = await request.json()
 
         const warehouse = await prisma.warehouse.findUnique({
             where:{
@@ -53,7 +56,10 @@ export async function PATCH(request:Request,{params}:{params:{id:string}}){
             select: {manufacturerId : true}
         })
 
-        if(!warehouse || warehouse.manufacturerId !== session?.user?.id){
+        console.log("MANUFACTURE_ID",manufacturerId)
+        console.log("WAREHOUS_ID",warehouse?.manufacturerId)
+
+        if(!warehouse || warehouse.manufacturerId !== manufacturerId ){
             return NextResponse.json({message:"You are not authorized to edit this warehouse"},{status:412})
         }
 
@@ -62,6 +68,7 @@ export async function PATCH(request:Request,{params}:{params:{id:string}}){
                 id
             },
             data:{
+                name,
                 location:{
                     update:{
                         longitude,
@@ -81,7 +88,7 @@ export async function PATCH(request:Request,{params}:{params:{id:string}}){
 }
 
 
-export async function DELETE({params}:{params:{id:string}}){
+export async function DELETE(request:Request,{params}:{params:{id:string}}){
     try{
 
         const session = await getServerSession()
@@ -92,16 +99,14 @@ export async function DELETE({params}:{params:{id:string}}){
 
         const { id } = params
 
+        console.log("PARAMS",id)
+
         const warehouse = await prisma.warehouse.findUnique({
             where:{
                 id
             },
             select: {manufacturerId: true}
         })
-
-        if(!warehouse || warehouse.manufacturerId !== session.user.id){
-            return NextResponse.json({message:"You are not authorized to make changes to this warehouse "},{status:422})
-        }
 
         const removeWarehouse = await prisma.warehouse.delete({
             where:{
