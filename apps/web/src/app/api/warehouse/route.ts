@@ -47,7 +47,7 @@ export async function POST(request:Request){
             data:{
                 name,
                 manufacturer:{
-                    create:{
+                    connect:{
                         id: manufacturerId,
                     }
                 },

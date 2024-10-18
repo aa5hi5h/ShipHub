@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 
-export async function Get(request:Request){
+export async function GET(request:Request){
     try{
     const session = await getServerSession()
 
@@ -12,6 +12,9 @@ export async function Get(request:Request){
     }
 
     const product = await prisma.product.findMany({
+        where:{
+            manufacturerId: session.user.id
+        },
         orderBy: [
             {createdAt: "desc"}
         ]
@@ -39,20 +42,20 @@ export async function POST(request:Request){
         if(!session?.user){
             return NextResponse.json({message:'User not authenticated'},{status:409})
         }
-        const {name, description , image , manufacturer} = await request.json()
+        const {name, description , image , manufacturerId} = await request.json()
 
-        if(!name || !description || !image || !manufacturer){
+        if(!name || !description || !image || !manufacturerId){
             return NextResponse.json({message:"Incomplete Data"},{status:422})
         }
 
-        console.log("DATA:::::::",name,description,image,manufacturer)
+        console.log("DATA:::::::",name,description,image,manufacturerId)
 
         const newProduct = await prisma.product.create({
             data:{
                 name,
                 description,
                 image,
-                manufacturer
+                manufacturerId
             }
         })
 

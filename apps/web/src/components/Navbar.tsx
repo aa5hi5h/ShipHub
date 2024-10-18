@@ -1,6 +1,6 @@
 "use client"
 
-import { useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import { Button } from "./ui/button"
 import { useRouter } from "next/navigation"
 
@@ -16,9 +16,9 @@ const Navbar = () => {
                 Inventory
             </div>
             <div className="flex gap-4">
-                <Button variant={"ghost"}>About</Button>
-                <Button variant={"ghost"}>Start your Inventory</Button>
-                {session?.data?.user ? <Button>SignOut</Button> : <Button onClick={() => router.push("/auth")}>SignIn</Button>}
+                <Button onClick={() => router.push("/about")} variant={"ghost"}>About</Button>
+                <Button  variant={"ghost"}>Start your Inventory</Button>
+                {session?.data?.user ? <Button onClick={() => signOut()}>SignOut</Button> : <Button onClick={() => router.push("/auth")}>SignIn</Button>}
             </div>
         </div>
     )
